@@ -47,7 +47,6 @@ def _parse_all(lines, verbose):
     if verbose:
         print('Building structured data...')
     df, attribs = _parse_cols(lines, verbose, return_attrib_dict=True)
-    print("len of att dict at _parse_all: ", len(attribs))
 
     if verbose:
         print("Adding Supplemental Attribute table...")
@@ -75,7 +74,7 @@ def _make_attrib_table(attribs, keys, verbose):
     if verbose:
         print("Making attribute table...")
 
-    data = {"seqid": []}
+    data = {}
     for key in keys:
         data[key] = []
 
@@ -89,8 +88,6 @@ def _make_attrib_table(attribs, keys, verbose):
             else:
                 data[key].append(np.nan)
 
-    for key in data:
-        print(key, len(data[key]))
     df = pd.DataFrame(data)
     return df
 
@@ -107,8 +104,23 @@ def _make_dict_from_attrib_list(string):
 
 
 def parse_gff3(filepath, verbose=True, parse_attributes=False):
+    """
+    This is the only public function of this package and it just parses a gff3 file into a pandas dataframe.
+
+    **Background**  - There are 8 columns (Seqid, Source, Type, Start, End, Score, Strand, Phase) that are in every gff3 file (required by the spec).
+    The last column stores additional data called 'attributes' which are stored in the last column in a weird form that is similar to key value pair tuples.
+    The logic of this function is that if parameter parse_attributes is true, this will collect all this data and add it to the dataframe by creating a column
+    for every unique key in all the rows. Many of these keys are always included (of at lease often) but others not so much so you can end up with some
+    sparse columns occasionally.
+
+    :param filepath: (pathlike, str) - the path to a gff3 file
+    :param verbose: (bool, default = True) - This function often takes a while to run so this function prints updates and progress bars to the screen
+    :param parse_attributes: (bool, default = False) - Read background in the docstring. Provides additional information but increased runtime.
+    :return: pd.DataFrame
+    """
     with open(filepath, 'r') as f:
         lines = f.readlines()
+    lines = [line.rstrip('\n') for line in lines]
 
 
     if verbose:
