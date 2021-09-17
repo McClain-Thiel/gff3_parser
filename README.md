@@ -57,7 +57,7 @@ data accordingly. It can be reasonably sparse and it does take a good amount of 
 ## Installation
 
 ```
-pip install pip install gff3-parser
+pip install gff3-parser
 ```
 
 I'd recommend updating this often as I find and fix issues
